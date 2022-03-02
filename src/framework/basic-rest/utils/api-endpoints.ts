@@ -19,3 +19,6 @@ export const API_ENDPOINTS = {
   ORDERS: "/orders.json",
   ORDER: "/order.json",
 };
+export const API_ENDPOINTS_V2 = {
+  CATEGORIES: "/categories?populate=Image",
+};

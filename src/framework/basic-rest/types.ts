@@ -29,6 +29,10 @@ export type Attachment = {
   thumbnail: string;
   original: string;
 };
+export type CategoryV2 = {
+  id: number;
+  attributes: any;
+}
 export type Category = {
   id: number | string;
   name: string;

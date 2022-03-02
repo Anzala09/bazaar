@@ -21,6 +21,9 @@ const Card: React.FC<Props> = ({
 	href,
 }) => {
 	const { name, image } = item ?? {};
+	const imageV2Url = image?.original ?? `${item.attributes.Image.data.attributes.url}`
+	console.log(`huzaifa ${JSON.stringify(imageV2Url)}`)
+	const originalImage = imageV2Url;
 	const imageSize: any =
 		(size === "small" && 180) || (size === "medium" && 198);
 
@@ -38,7 +41,7 @@ const Card: React.FC<Props> = ({
 			>
 				<div className="flex">
 					<Image
-						src={image?.original ?? placeholderImage}
+						src={originalImage ?? placeholderImage}
 						alt={name || t("text-card-thumbnail")}
 						width={imageSize}
 						height={imageSize}
