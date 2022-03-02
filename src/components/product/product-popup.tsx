@@ -11,6 +11,7 @@ import { generateCartItem } from "@utils/generate-cart-item";
 import usePrice from "@framework/product/use-price";
 import { getVariations } from "@framework/utils/get-variations";
 import { useTranslation } from "next-i18next";
+import {getSlug} from "@utils/constants";
 
 export default function ProductPopup() {
 	const { t } = useTranslation("common");
@@ -31,7 +32,7 @@ export default function ProductPopup() {
 		currencyCode: "USD",
 	});
 	const variations = getVariations(data.variations);
-	const { slug, image, name, description } = data;
+	const {id, image, name, description} = data;
 
 	const isSelected = !isEmpty(variations)
 		? !isEmpty(attributes) &&
@@ -55,7 +56,14 @@ export default function ProductPopup() {
 
 	function navigateToProductPage() {
 		closeModal();
-		router.push(`${ROUTES.PRODUCT}/${slug}`, undefined, {
+
+		if (typeof window !== 'undefined') {
+			// TODO: use the actual product id
+			// sessionStorage.setItem("productId", id);
+			sessionStorage.setItem("productId", '2');
+		}
+
+		router.push(`${ROUTES.PRODUCT}/${getSlug(name)}`, undefined, {
 			locale: router.locale,
 		});
 	}

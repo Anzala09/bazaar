@@ -1,9 +1,9 @@
 import Link from "@components/ui/link";
 import Image from "next/image";
 import Text from "@components/ui/text";
-import { FaLink } from "react-icons/fa";
-import { LinkProps } from "next/link";
-import { useTranslation } from "next-i18next";
+import {FaLink} from "react-icons/fa";
+import {LinkProps} from "next/link";
+import {useTranslation} from "next-i18next";
 import {BAZAAR_ADMIN_BASE_URL} from "@framework/utils/http";
 
 interface Props {
@@ -22,9 +22,7 @@ const Card: React.FC<Props> = ({
 	href,
 }) => {
 	const { name, image } = item ?? {};
-	const imageV2Url = image?.original ?? `${BAZAAR_ADMIN_BASE_URL}${item.attributes.Image.data.attributes.url}`
-	console.log(`huzaifa ${JSON.stringify(imageV2Url)}`)
-	const originalImage = imageV2Url;
+	const originalImage = image?.original ?? `${BAZAAR_ADMIN_BASE_URL}${item.attributes.Image.data.attributes.url}`;
 	const imageSize: any =
 		(size === "small" && 180) || (size === "medium" && 198);
 

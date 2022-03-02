@@ -73,6 +73,10 @@ export type Product = {
   variations?: object;
   [key: string]: unknown;
 };
+export type   ProductV2 = {
+  id: number;
+  attributes: any;
+};
 export type OrderItem = {
   id: number | string;
   name: string;

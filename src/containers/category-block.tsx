@@ -6,7 +6,8 @@ import CardRoundedLoader from "@components/ui/loaders/card-rounded-loader";
 import {useCategoriesQueryV2} from "@framework/category/get-all-categories";
 import {ROUTES} from "@utils/routes";
 import Alert from "@components/ui/alert";
-import { SwiperSlide } from "swiper/react";
+import {SwiperSlide} from "swiper/react";
+import {getSlug} from "@utils/constants";
 
 interface CategoriesProps {
 	sectionHeading: string;
@@ -105,10 +106,9 @@ const CategoryBlock: React.FC<CategoriesProps> = ({
 									<Card
 										item={category}
 										href={{
-                                            pathname: ROUTES.SEARCH,
-                                            // query: {category: category.slug },
-                                            query: {category: category.attributes.Name.trim().toLowerCase().replace(' ', '-')},
-                                        }}
+											pathname: ROUTES.SEARCH,
+											query: {category: getSlug(category.attributes.Name)},
+										}}
 										variant={type}
 										effectActive={true}
 										size={type === "rounded" ? "medium" : "small"}

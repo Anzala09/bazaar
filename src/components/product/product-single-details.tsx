@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import Button from "@components/ui/button";
 import Counter from "@components/common/counter";
-import { useRouter } from "next/router";
-import { useProductQuery } from "@framework/product/get-product";
-import { getVariations } from "@framework/utils/get-variations";
+import {useRouter} from "next/router";
+import {useProductQuery, useProductQueryV2} from "@framework/product/get-product";
+import {getVariations, getVariationsV2} from "@framework/utils/get-variations";
 import usePrice from "@framework/product/use-price";
 import { useCart } from "@contexts/cart/cart.context";
 import { generateCartItem } from "@utils/generate-cart-item";
@@ -14,7 +14,7 @@ import { toast } from "react-toastify";
 import { useWindowSize } from "@utils/use-window-size";
 import Carousel from "@components/ui/carousel/carousel";
 import { SwiperSlide } from "swiper/react";
-import ProductMetaReview from "@components/product/product-meta-review";
+import {BAZAAR_ADMIN_BASE_URL} from "@framework/utils/http";
 
 const productGalleryCarouselResponsive = {
 	"768": {
@@ -27,23 +27,32 @@ const productGalleryCarouselResponsive = {
 
 const ProductSingleDetails: React.FC = () => {
 	const {
-		query: { slug },
+		query: {slug},
 	} = useRouter();
-	const { width } = useWindowSize();
-	const { data, isLoading } = useProductQuery(slug as string);
-	const { addItemToCart } = useCart();
+
+	let productId = '1';
+
+	if (typeof window !== 'undefined') {
+		productId = sessionStorage.getItem("productId") ?? productId;
+	}
+	const {width} = useWindowSize();
+	// const { data, isLoading } = useProductQuery(slug as string);
+	const {data, isLoading} = useProductQueryV2(parseInt(productId));
+	const {addItemToCart} = useCart();
 	const [attributes, setAttributes] = useState<{ [key: string]: string }>({});
 	const [quantity, setQuantity] = useState(1);
 	const [addToCartLoader, setAddToCartLoader] = useState<boolean>(false);
-	const { price, basePrice, discount } = usePrice(
+	const {price, basePrice, discount} = usePrice(
 		data && {
-			amount: data.sale_price ? data.sale_price : data.price,
-			baseAmount: data.price,
+			amount: parseInt(data?.data?.attributes.SalePrice) ?? parseInt(data?.data?.attributes.Price),
+			baseAmount: parseInt(data?.data?.attributes.Price),
 			currencyCode: "USD",
 		}
 	);
+
 	if (isLoading) return <p>Loading...</p>;
-	const variations = getVariations(data?.variations);
+	// const variations = getVariations(data?.variations);
+	const variations = getVariationsV2(data?.data?.attributes?.sizes?.data, data?.data?.attributes?.colors?.data);
 
 	const isSelected = !isEmpty(variations)
 		? !isEmpty(attributes) &&
@@ -82,6 +91,12 @@ const ProductSingleDetails: React.FC = () => {
 		}));
 	}
 
+	const gallery = data?.gallery ?? data?.data?.attributes?.Gallery?.data
+
+	function getOriginalImage(item: any) {
+		return item?.original ?? `${BAZAAR_ADMIN_BASE_URL}${item?.attributes?.url}`
+	}
+
 	return (
 		<div className="block lg:grid grid-cols-9 gap-x-10 xl:gap-x-14 pt-7 pb-10 lg:pb-14 2xl:pb-20 items-start">
 			{width < 1025 ? (
@@ -93,34 +108,34 @@ const ProductSingleDetails: React.FC = () => {
 					className="product-gallery"
 					buttonClassName="hidden"
 				>
-					{data?.gallery?.map((item, index: number) => (
+					{gallery?.map((item, index: number) => (
 						<SwiperSlide key={`product-gallery-key-${index}`}>
 							<div className="col-span-1 transition duration-150 ease-in hover:opacity-90">
 								<img
 									src={
-										item?.original ??
+										getOriginalImage(item) ??
 										"/assets/placeholder/products/product-gallery.svg"
 									}
-									alt={`${data?.name}--${index}`}
+									alt={`${data?.name ?? data?.data?.attributes?.Name}--${index}`}
 									className="object-cover w-full"
 								/>
 							</div>
 						</SwiperSlide>
-					))}
+						))}
 				</Carousel>
 			) : (
 				<div className="col-span-5 grid grid-cols-2 gap-2.5">
-					{data?.gallery?.map((item, index: number) => (
+					{gallery?.map((item, index: number) => (
 						<div
 							key={index}
 							className="col-span-1 transition duration-150 ease-in hover:opacity-90"
 						>
 							<img
 								src={
-									item?.original ??
+									getOriginalImage(item) ??
 									"/assets/placeholder/products/product-gallery.svg"
 								}
-								alt={`${data?.name}--${index}`}
+								alt={`${data?.name ?? data?.data?.attributes?.Name}--${index}`}
 								className="object-cover w-full"
 							/>
 						</div>
@@ -131,17 +146,19 @@ const ProductSingleDetails: React.FC = () => {
 			<div className="col-span-4 pt-8 lg:pt-0">
 				<div className="pb-7 mb-7 border-b border-gray-300">
 					<h2 className="text-heading text-lg md:text-xl lg:text-2xl 2xl:text-3xl font-bold hover:text-black mb-3.5">
-						{data?.name}
+						{data?.name ?? data?.data?.attributes?.Name}
 					</h2>
 					<p className="text-body text-sm lg:text-base leading-6 lg:leading-8">
-						{data?.description}
+						{data?.description ?? data?.data?.attributes?.Description}
 					</p>
 					<div className="flex items-center mt-5">
-						<div className="text-heading font-bold text-base md:text-xl lg:text-2xl 2xl:text-4xl pe-2 md:pe-0 lg:pe-2 2xl:pe-0">
+						<div
+							className="text-heading font-bold text-base md:text-xl lg:text-2xl 2xl:text-4xl pe-2 md:pe-0 lg:pe-2 2xl:pe-0">
 							{price}
 						</div>
 						{discount && (
-							<span className="line-through font-segoe text-gray-400 text-sm md:text-base lg:text-lg xl:text-xl ps-2">
+							<span
+								className="line-through font-segoe text-gray-400 text-sm md:text-base lg:text-lg xl:text-xl ps-2">
 								{basePrice}
 							</span>
 						)}
@@ -161,7 +178,8 @@ const ProductSingleDetails: React.FC = () => {
 						);
 					})}
 				</div>
-				<div className="flex items-center space-s-4 md:pe-32 lg:pe-12 2xl:pe-32 3xl:pe-48 border-b border-gray-300 py-8">
+				<div
+					className="flex items-center space-s-4 md:pe-32 lg:pe-12 2xl:pe-32 3xl:pe-48 border-b border-gray-300 py-8">
 					<Counter
 						quantity={quantity}
 						onIncrement={() => setQuantity((prev) => prev + 1)}
@@ -188,7 +206,7 @@ const ProductSingleDetails: React.FC = () => {
 							<span className="font-semibold text-heading inline-block pe-2">
 								SKU:
 							</span>
-							{data?.sku}
+							{data?.sku ?? "N/A"}
 						</li>
 						<li>
 							<span className="font-semibold text-heading inline-block pe-2">
@@ -198,7 +216,7 @@ const ProductSingleDetails: React.FC = () => {
 								href="/"
 								className="transition hover:underline hover:text-heading"
 							>
-								{data?.category?.name}
+								{data?.category?.name ?? data?.data?.attributes?.categories?.data?.[0]?.attributes?.Name}
 							</Link>
 						</li>
 						{data?.tags && Array.isArray(data.tags) && (
@@ -221,7 +239,7 @@ const ProductSingleDetails: React.FC = () => {
 					</ul>
 				</div>
 
-				<ProductMetaReview data={data} />
+				{/*<ProductMetaReview data={data} />*/}
 			</div>
 		</div>
 	);

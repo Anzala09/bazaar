@@ -1,4 +1,5 @@
 import isEmpty from "lodash/isEmpty";
+import {BAZAAR_ADMIN_BASE_URL} from "@framework/utils/http";
 
 interface Item {
   id: string | number;
@@ -20,7 +21,7 @@ export function generateCartItem(item: Item, attributes: object) {
       : id,
     name,
     slug,
-    image: image.thumbnail,
+    image: image?.thumbnail ?? `${BAZAAR_ADMIN_BASE_URL}${item.data?.attributes?.Image?.data?.attributes?.formats?.thumbnail?.url}`,
     price: sale_price ? sale_price : price,
     attributes,
   };
