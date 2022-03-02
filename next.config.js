@@ -8,4 +8,7 @@ module.exports = withPWA({
     runtimeCaching,
   },
   i18n,
+  images: {
+    domains: ['localhost'],
+  },
 });
