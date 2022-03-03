@@ -58,9 +58,7 @@ export default function ProductPopup() {
 		closeModal();
 
 		if (typeof window !== 'undefined') {
-			// TODO: use the actual product id
-			// sessionStorage.setItem("productId", id);
-			sessionStorage.setItem("productId", '2');
+			sessionStorage.setItem("productId", id);
 		}
 
 		router.push(`${ROUTES.PRODUCT}/${getSlug(name)}`, undefined, {
