@@ -1,4 +1,4 @@
-import { useOrderQuery } from "@framework/order/get-order";
+import { useOrderQueryV2 } from "@framework/order/get-order";
 import usePrice from "@framework/product/use-price";
 import { OrderItem } from "@framework/types";
 import { useRouter } from "next/router";
@@ -26,10 +26,10 @@ const OrderDetails: React.FC<{ className?: string }> = ({
 	const {
 		query: { id },
 	} = useRouter();
-	const { data: order, isLoading } = useOrderQuery(id?.toString()!);
+	const { data: order, isLoading } = useOrderQueryV2(id?.toString()!);
 	const { price: subtotal } = usePrice(
 		order && {
-			amount: order.total,
+			amount: order.total ?? order?.data?.attributes?.Total,
 			currencyCode: "USD",
 		}
 	);
@@ -37,7 +37,7 @@ const OrderDetails: React.FC<{ className?: string }> = ({
 		order && {
 			amount: order.shipping_fee
 				? order.total + order.shipping_fee
-				: order.total,
+				: order.total ?? order?.data?.attributes?.Total,
 			currencyCode: "USD",
 		}
 	);
@@ -47,8 +47,24 @@ const OrderDetails: React.FC<{ className?: string }> = ({
 			currencyCode: "USD",
 		}
 	);
-	if (isLoading) return <p>Loading...</p>;
 	const { t } = useTranslation("common");
+
+	function getProducts(orderDetails: any) {
+		let products = [];
+		for (let i = 0; i < orderDetails?.length; i++) {
+			let product = {
+				"id": orderDetails[i].id,
+				"name": orderDetails[i].name,
+				"quantity": orderDetails[i].quantity,
+				"price": orderDetails[i].price,
+			}
+			products.push(product);
+		}
+		return products
+	}
+
+	const products = order?.products ?? getProducts(order?.data?.attributes?.OrderDetails)
+	if (isLoading) return <p>Loading...</p>;
 	return (
 		<div className={className}>
 			<h2 className="text-lg md:text-xl xl:text-2xl font-bold text-heading mb-6 xl:mb-8">
@@ -66,7 +82,7 @@ const OrderDetails: React.FC<{ className?: string }> = ({
 					</tr>
 				</thead>
 				<tbody>
-					{order?.products.map((product, index) => (
+					{products?.map((product, index) => (
 						<OrderItemCard key={index} product={product} />
 					))}
 				</tbody>
@@ -78,15 +94,15 @@ const OrderDetails: React.FC<{ className?: string }> = ({
 					<tr className="odd:bg-gray-150">
 						<td className="p-4 italic">{t("text-shipping")}:</td>
 						<td className="p-4">
-							{shipping}
+							{!!shipping ? shipping : "Free"}
 							<span className="text-[13px] font-normal ps-1.5 inline-block">
-								via Flat rate
+								{/*via Flat rate*/}
 							</span>
 						</td>
 					</tr>
 					<tr className="odd:bg-gray-150">
 						<td className="p-4 italic">{t("text-payment-method")}:</td>
-						<td className="p-4">{order?.payment_gateway}</td>
+						<td className="p-4">{order?.payment_gateway ?? "cash on delivery"}</td>
 					</tr>
 					<tr className="odd:bg-gray-150">
 						<td className="p-4 italic">{t("text-total")}:</td>
@@ -94,7 +110,7 @@ const OrderDetails: React.FC<{ className?: string }> = ({
 					</tr>
 					<tr className="odd:bg-gray-150">
 						<td className="p-4 italic">{t("text-note")}:</td>
-						<td className="p-4">new order</td>
+						<td className="p-4">{order?.data?.attributes?.OrderNote}</td>
 					</tr>
 				</tfoot>
 			</table>

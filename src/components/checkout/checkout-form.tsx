@@ -34,7 +34,7 @@ const CheckoutForm: React.FC = () => {
 	async function onSubmit(input: CheckoutInputType) {
 		let placedOrder = await createOrderRequest(items, total, input)
 		updateUser(input);
-		Router.push(ROUTES.ORDER);
+		Router.push(`${ROUTES.ORDER}?id=${placedOrder?.data?.id}`)
 	}
 
 	return (

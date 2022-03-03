@@ -1,6 +1,6 @@
 import { IoCheckmarkCircle } from "react-icons/io5";
 import OrderDetails from "@components/order/order-details";
-import { useOrderQuery } from "@framework/order/get-order";
+import { useOrderQueryV2 } from "@framework/order/get-order";
 import { useRouter } from "next/router";
 import usePrice from "@framework/product/use-price";
 import { useTranslation } from "next-i18next";
@@ -10,14 +10,22 @@ export default function OrderInformation() {
 		query: { id },
 	} = useRouter();
 	const { t } = useTranslation("common");
-	const { data, isLoading } = useOrderQuery(id?.toString()!);
+	const { data, isLoading } = useOrderQueryV2(id?.toString()!);
 	const { price: total } = usePrice(
 		data && {
-			amount: data.shipping_fee ? data.total + data.shipping_fee : data.total,
+			amount: data.shipping_fee ? data.total + data.shipping_fee : data.total ?? data?.data?.attributes?.Total,
 			currencyCode: "USD",
 		}
 	);
 	if (isLoading) return <p>Loading...</p>;
+
+	function getFormattedDate(datetime: any) {
+		const date = new Date(datetime)
+		const formattedDate = date.toDateString();
+		const formattedTime = date.toLocaleString('en-US', { hour: 'numeric', hour12: true, minute: 'numeric' });
+		return `${formattedDate} at ${formattedTime}`
+	}
+
 	return (
 		<div className="xl:px-32 2xl:px-44 3xl:px-56 py-16 lg:py-20">
 			<div className="border border-gray-300 bg-gray-50 px-4 lg:px-5 py-4 rounded-md flex items-center justify-start text-heading text-sm md:text-base mb-6 lg:mb-8">
@@ -32,19 +40,19 @@ export default function OrderInformation() {
 					<span className="uppercase text-[11px] block text-body font-normal leading-5">
 						{t("text-order-number")}:
 					</span>
-					{data?.tracking_number}
+					{data?.tracking_number ?? data?.data?.id}
 				</li>
 				<li className="text-heading font-semibold text-base lg:text-lg border-b md:border-b-0 md:border-r border-dashed border-gray-300 px-4 lg:px-6 xl:px-8 py-4 md:py-5 lg:py-6 last:border-0">
 					<span className="uppercase text-[11px] block text-body font-normal leading-5">
 						{t("text-date")}:
 					</span>
-					April 22, 2021
+					{ getFormattedDate(data?.data?.attributes?.Date) }
 				</li>
 				<li className="text-heading font-semibold text-base lg:text-lg border-b md:border-b-0 md:border-r border-dashed border-gray-300 px-4 lg:px-6 xl:px-8 py-4 md:py-5 lg:py-6 last:border-0">
 					<span className="uppercase text-[11px] block text-body font-normal leading-5">
 						{t("text-email")}:
 					</span>
-					{data?.customer.email}
+					{data?.customer?.email ?? data?.data?.attributes.Email}
 				</li>
 				<li className="text-heading font-semibold text-base lg:text-lg border-b md:border-b-0 md:border-r border-dashed border-gray-300 px-4 lg:px-6 xl:px-8 py-4 md:py-5 lg:py-6 last:border-0">
 					<span className="uppercase text-[11px] block text-body font-normal leading-5">
@@ -56,7 +64,7 @@ export default function OrderInformation() {
 					<span className="uppercase text-[11px] block text-body font-normal leading-5">
 						{t("text-payment-method")}:
 					</span>
-					{data?.payment_gateway}
+					{data?.payment_gateway ?? "cash on delivery"}
 				</li>
 			</ul>
 
