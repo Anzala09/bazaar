@@ -8,9 +8,25 @@ type PaginatedProduct = {
 	data: Product[];
 	paginatorInfo: any;
 };
+
+const productsUrl = (query: string) => {
+	return `${API_ENDPOINTS_V2.PRODUCT}?${query}`;
+}
+
 const fetchProducts = async ({ queryKey }: any) => {
 	const [_key, _params] = queryKey;
-	const { data } = await httpV2.get(`${API_ENDPOINTS_V2.PRODUCT}?populate=Image`);
+	const qs = require('qs');
+	const query = qs.stringify({
+		populate: 'Image',
+		pagination: {
+			pageSize: 25,
+			// page: 999, // TODO: Enter page number to fetch given page
+		},
+	}, {
+		encodeValuesOnly: true, // prettify url
+	});
+	const { data } = await httpV2.get(productsUrl(query));
+
 	return {
 		data: transformProductV2ToV1(data.data),
 		paginatorInfo: {
