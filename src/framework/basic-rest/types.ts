@@ -97,3 +97,8 @@ export type Order = {
   shipping_fee: number;
   payment_gateway: string;
 };
+
+export type OrderV2 = {
+  id: number,
+  attributes: any
+}

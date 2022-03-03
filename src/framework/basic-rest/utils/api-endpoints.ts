@@ -22,4 +22,5 @@ export const API_ENDPOINTS = {
 export const API_ENDPOINTS_V2 = {
   CATEGORIES: "/categories?populate=Image",
   PRODUCT: "/products",
+  ORDERS: "/orders",
 };

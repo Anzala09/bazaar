@@ -7,6 +7,8 @@ import Button from "@components/ui/button";
 import Router from "next/router";
 import { ROUTES } from "@utils/routes";
 import { useTranslation } from "next-i18next";
+import {useCart} from "@contexts/cart/cart.context";
+import {createOrderRequest} from "@framework/order/create-order-v2";
 
 interface CheckoutInputType {
 	firstName: string;
@@ -28,7 +30,9 @@ const CheckoutForm: React.FC = () => {
 		handleSubmit,
 		formState: { errors },
 	} = useForm<CheckoutInputType>();
-	function onSubmit(input: CheckoutInputType) {
+	const {items, total} = useCart();
+	async function onSubmit(input: CheckoutInputType) {
+		let placedOrder = await createOrderRequest(items, total, input)
 		updateUser(input);
 		Router.push(ROUTES.ORDER);
 	}
