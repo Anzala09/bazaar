@@ -8,6 +8,18 @@ interface Props {
 
 const ProductMetaReview: React.FC<Props> = ({ data }) => {
 	const [expanded, setExpanded] = useState<number>(0);
+	data.meta = [
+		{
+			"id": 1,
+			"title": "Product Details",
+			"content": data?.data?.attributes.ProductDetails
+		},
+		{
+			"id": 2,
+			"title": "Additional Information",
+			"content": data?.data?.attributes.AdditionalInformation
+		},
+	]
 	return (
 		<>
 			{data?.meta.map((item: any, index: any) => (
@@ -19,7 +31,7 @@ const ProductMetaReview: React.FC<Props> = ({ data }) => {
 					content={
 						data?.meta.length === item.id ? (
 							<>
-								{item.content} <ReviewForm />
+								{item.content} {/*<ReviewForm />*/}
 							</>
 						) : (
 							item.content

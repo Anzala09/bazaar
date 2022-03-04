@@ -15,6 +15,7 @@ import { useWindowSize } from "@utils/use-window-size";
 import Carousel from "@components/ui/carousel/carousel";
 import { SwiperSlide } from "swiper/react";
 import {BAZAAR_ADMIN_BASE_URL} from "@framework/utils/http";
+import ProductMetaReview from "@components/product/product-meta-review";
 
 const productGalleryCarouselResponsive = {
 	"768": {
@@ -239,7 +240,7 @@ const ProductSingleDetails: React.FC = () => {
 					</ul>
 				</div>
 
-				{/*<ProductMetaReview data={data} />*/}
+				<ProductMetaReview data={data} />
 			</div>
 		</div>
 	);
